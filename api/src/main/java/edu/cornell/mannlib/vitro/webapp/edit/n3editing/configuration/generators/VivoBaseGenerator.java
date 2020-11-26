@@ -2,6 +2,10 @@
 package edu.cornell.mannlib.vitro.webapp.edit.n3editing.configuration.generators;
 
 import edu.cornell.mannlib.vitro.webapp.dao.VitroVocabulary;
+import org.apache.jena.vocabulary.XSD;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Adds static Strings that may be useful for forms that are part of VIVO.
@@ -37,5 +41,11 @@ public abstract class VivoBaseGenerator extends BaseEditConfigurationGenerator i
 
     final static String orgClass ="http://xmlns.com/foaf/0.1/Organization" ;
     final static String personClass = foaf + "Person";
+
+    public String getCurrentTime() {
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ISO_LOCAL_DATE;
+        return "\"" + ldt.format(dtf) + "\"^^<" + XSD.date.toString() + ">";
+    }  
 
 }

@@ -84,7 +84,7 @@ import edu.cornell.mannlib.vitro.webapp.utils.generators.EditModeUtils;
     template
  *
  */
-public abstract class AddRoleToPersonTwoStageGenerator extends BaseEditConfigurationGenerator implements EditConfigurationGenerator {
+public abstract class AddRoleToPersonTwoStageGenerator extends VivoBaseGenerator implements EditConfigurationGenerator {
 
 	private Log log = LogFactory.getLog(AddRoleToPersonTwoStageGenerator.class);
 
@@ -212,6 +212,7 @@ public abstract class AddRoleToPersonTwoStageGenerator extends BaseEditConfigura
         n3ForNewRoleActivity.add("?role " + getRoleToActivityPlaceholder() + " ?roleActivity .\n"+
         "?roleActivity " + getActivityToRolePlaceholder() + " ?role . \n" +
         "?roleActivity <" + RDFS.label.getURI() + "> ?activityLabel . \n" +
+		"?roleActivity <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " . \n" +
         "?roleActivity a ?roleActivityType .");
     	return n3ForNewRoleActivity;
     }

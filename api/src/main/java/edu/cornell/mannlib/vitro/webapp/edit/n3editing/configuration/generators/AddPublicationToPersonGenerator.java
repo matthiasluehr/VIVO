@@ -227,6 +227,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
     private String getN3ForNewPub() {
         return "@prefix core: <" + vivoCore + "> ." +
         "?newPublication a ?pubType ." +
+        "?newPublication <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newPublication <" + label + "> ?title ." +
         "?authorshipUri core:relates ?newPublication ." +
         "?newPublication core:relatedBy ?authorshipUri .";
@@ -242,6 +243,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?newPublication vivo:hasPublicationVenue ?newCollection . \n" +
         "?newCollection a <" + collectionClass + "> . \n" +
+        "?newCollection <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newCollection vivo:publicationVenueFor ?newPublication . \n" +
         "?newCollection <" + label + "> ?collection .";
     }
@@ -250,6 +252,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?pubUri vivo:hasPublicationVenue ?newCollection . \n" +
         "?newCollection a <" + collectionClass + ">  . \n" +
+        "?newCollection <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newCollection vivo:publicationVenueFor ?pubUri . \n" +
         "?newCollection <" + label + "> ?collection .";
     }
@@ -270,6 +273,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?pubUri vivo:hasPublicationVenue ?newBook . \n" +
         "?newBook a <" + bookClass + ">  . \n" +
+        "?newBook <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newBook vivo:publicationVenueFor ?pubUri . \n " +
         "?newBook <" + label + "> ?book .";
     }
@@ -284,6 +288,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?newPublication vivo:hasPublicationVenue ?newBook . \n" +
         "?newBook a <" + bookClass + ">  . \n" +
+        "?newBook <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newBook vivo:publicationVenueFor ?newPublication . \n " +
         "?newBook <" + label + "> ?book . ";
     }
@@ -314,6 +319,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         "?editorship a vivo:Editorship . \n" +
         "?editorship vivo:relates ?newEditor . \n" +
         "?newEditor a <" + editorClass + ">  . \n" +
+        "?newEditor <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newEditor vivo:relatedBy ?editorship . \n" +
         "?newEditor <" + label + "> ?editor .";
     }
@@ -351,6 +357,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?pubUri <" + presentedAtPred + "> ?newConference . \n" +
         "?newConference a <" + conferenceClass + ">  . \n" +
+        "?newConference <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newConference <http://purl.obolibrary.org/obo/BFO_0000051> ?pubUri . \n" +
         "?newConference <" + label + "> ?conference .";
     }
@@ -379,6 +386,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?pubUri vivo:proceedingsOf ?newEvent . \n" +
         "?newEvent a <" + conferenceClass + ">  . \n" +
+        "?newEvent <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newEvent vivo:hasProceedings ?pubUri . \n" +
         "?newEvent <" + label + "> ?event .";
     }
@@ -393,6 +401,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?newPublication vivo:proceedingsOf ?newEvent . \n" +
         "?newEvent a <" + conferenceClass + ">  . \n" +
+        "?newEvent <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newEvent vivo:hasProceedings ?newPublication . \n" +
         "?newEvent <" + label + "> ?event .";
     }
@@ -410,6 +419,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         "?editorship a vivo:Editorship . \n" +
         "?editorship vivo:relates ?newEditor . \n" +
         "?newEditor a <" + editorClass + ">  . \n" +
+        "?newEditor <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newEditor vivo:relatedBy ?editorship . \n" +
         "?newEditor <" + label + "> ?editor .";
     }
@@ -431,6 +441,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         "?editorship a vivo:Editorship . \n" +
         "?editorship vivo:relates ?newEditor . \n" +
         "?newEditor a <" + editorClass + ">  . \n" +
+        "?newEditor <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newEditor vivo:relatedBy ?editorship . \n" +
         "?newEditor <" + label + "> ?editor .";
     }
@@ -449,6 +460,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?pubUri vivo:publisher ?newPublisher . \n" +
         "?newPublisher a <" + publisherClass + ">  . \n" +
+        "?newPublisher <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newPublisher vivo:publisherOf ?pubUri . \n" +
         "?newPublisher <" + label + "> ?publisher .";
     }
@@ -463,6 +475,7 @@ public class AddPublicationToPersonGenerator extends VivoBaseGenerator implement
         return "@prefix vivo: <" + vivoCore + "> . \n" +
         "?newPublication vivo:publisher ?newPublisher . \n" +
         "?newPublisher a <" + publisherClass + ">  . \n" +
+        "?newPublisher <https://vivo.hs-mittweida.de/vivo/ontology/hsmw#createdAt> " + this.getCurrentTime() + " ." +
         "?newPublisher vivo:publisherOf ?newPublication . \n" +
         "?newPublisher <" + label + "> ?publisher .";
     }
