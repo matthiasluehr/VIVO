@@ -27,7 +27,7 @@ import org.apache.jena.vocabulary.XSD;
 
 import edu.cornell.mannlib.vitro.webapp.controller.VitroRequest;
 import edu.cornell.mannlib.vitro.webapp.dao.jena.QueryUtils;
-import edu.cornell.mannlib.vitro.webapp.edit.n3editing.FirstAndLastNameValidator;
+import edu.cornell.mannlib.vitro.webapp.edit.n3editing.PublicationHasAuthorValidator;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationUtils;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.EditConfigurationVTwo;
 import edu.cornell.mannlib.vitro.webapp.edit.n3editing.VTwo.fields.FieldVTwo;
@@ -66,6 +66,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 
         editConfiguration.addNewResource("editorshipUri", DEFAULT_NS_TOKEN);
         editConfiguration.addNewResource("newPerson", DEFAULT_NS_TOKEN);
+		editConfiguration.addNewResource("newOrg", DEFAULT_NS_TOKEN);
         editConfiguration.addNewResource("vcardPerson", DEFAULT_NS_TOKEN);
         editConfiguration.addNewResource("vcardName", DEFAULT_NS_TOKEN);
 
@@ -84,7 +85,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
         //template file
         editConfiguration.setTemplate("addEditorsToInformationResource.ftl");
         //add validators
-        editConfiguration.addValidator(new FirstAndLastNameValidator("personUri", I18n.bundle(vreq)));
+		editConfiguration.addValidator(new PublicationHasAuthorValidator());
 
         //Adding additional data, specifically edit mode
         addFormSpecificData(editConfiguration, vreq);
@@ -129,7 +130,9 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
                 getN3NewPersonLastName(),
                 getN3NewPerson(),
                 getN3EditorshipRank(),
-                getN3ForExistingPerson());
+                getN3ForExistingPerson(),
+				getN3NewOrg(),
+                getN3ForExistingOrg());
 	}
 
 
@@ -180,6 +183,20 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 		"?personUri core:relatedBy ?editorshipUri .";
 	}
 
+	private String getN3NewOrg() {
+		return  getN3PrefixString() +
+        "?newOrg a foaf:Organization ;\n" +
+        "<" + RDFS.label.getURI() + "> ?orgName .\n" +
+        "?editorshipUri core:relates ?newOrg .\n" +
+        "?newOrg core:relatedBy ?editorshipUri . ";
+	}
+
+	private String getN3ForExistingOrg() {
+		return getN3PrefixString() +
+		"?editorshipUri core:relates ?orgUri .\n" +
+		"?orgUri core:relatedBy ?editorshipUri .";
+	}
+
 	/**  Get new resources	 */
 	//A new editorship uri will always be created when an editor is added
 	//A new person may be added if a person not in the system will be added as editor
@@ -191,6 +208,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 			newResources.put("newPerson", DEFAULT_NS_TOKEN);
 			newResources.put("vcardPerson", DEFAULT_NS_TOKEN);
 			newResources.put("vcardName", DEFAULT_NS_TOKEN);
+			newResources.put("newOrg", DEFAULT_NS_TOKEN);
 			return newResources;
 		}
 
@@ -210,6 +228,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
     	List<String> urisOnForm = new ArrayList<String>();
     	//If an existing person is being used as an editor, need to get the person uri
     	urisOnForm.add("personUri");
+		urisOnForm.add("orgUri");
     	editConfiguration.setUrisOnform(urisOnForm);
 
     	//for person who is not in system, need to add first name, last name and middle name
@@ -218,6 +237,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
     			"middleName",
     			"lastName",
     			"rank",
+				"orgName",
     			"label");
     	editConfiguration.setLiteralsOnForm(literalsOnForm);
     }
@@ -246,6 +266,8 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
     	setLastNameField(editConfiguration);
     	setRankField(editConfiguration);
     	setPersonUriField(editConfiguration);
+		setOrgUriField(editConfiguration);
+    	setOrgNameField(editConfiguration);
     }
 
 	private void setLabelField(EditConfigurationVTwo editConfiguration) {
@@ -298,6 +320,21 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 				);
 	}
 
+	private void setOrgUriField(EditConfigurationVTwo editConfiguration) {
+		editConfiguration.addField(new FieldVTwo().
+				setName("orgUri")
+				//.setObjectClassUri(personClass)
+				);
+	}
+
+	private void setOrgNameField(EditConfigurationVTwo editConfiguration) {
+		editConfiguration.addField(new FieldVTwo().
+				setName("orgName").
+				setValidators(list("datatype:" + XSD.xstring.toString())).
+				setRangeDatatypeUri(XSD.xstring.toString())
+				);
+	}
+
 	//Form specific data
 	public void addFormSpecificData(EditConfigurationVTwo editConfiguration, VitroRequest vreq) {
 		HashMap<String, Object> formSpecificData = new HashMap<String, Object>();
@@ -318,7 +355,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 			+ "    ?editorshipURI a core:Editorship .\n"
 			+ "    ?editorshipURI core:relates ?editorURI .\n"
 			+ "    ?editorshipURI core:rank ?rank.\n"
-			+ "    ?editorURI a foaf:Person .\n"
+			+ "    ?editorURI a foaf:Agent .\n"
 			+ "    ?editorURI rdfs:label ?editorName .\n"
 			+ "}\n"
 			+ "WHERE\n"
@@ -327,14 +364,14 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
 			+ "        ?subject core:relatedBy ?editorshipURI .\n"
 			+ "        ?editorshipURI a core:Editorship .\n"
 			+ "        ?editorshipURI core:relates ?editorURI .\n"
-			+ "        ?editorURI a foaf:Person .\n"
+			+ "        ?editorURI a foaf:Agent .\n"
 			+ "    }\n"
 			+ "    UNION\n"
 			+ "    {\n"
 			+ "        ?subject core:relatedBy ?editorshipURI .\n"
 			+ "        ?editorshipURI a core:Editorship .\n"
 			+ "        ?editorshipURI core:relates ?editorURI .\n"
-			+ "        ?editorURI a foaf:Person .\n"
+			+ "        ?editorURI a foaf:Agent .\n"
 			+ "        ?editorURI rdfs:label ?editorName .\n"
 			+ "    }\n"
 			+ "    UNION\n"
@@ -354,7 +391,7 @@ public class AddEditorsToInformationResourceGenerator extends VivoBaseGenerator 
         + "?subject core:relatedBy ?editorshipURI . \n"
         + "?editorshipURI a core:Editorship . \n"
         + "?editorshipURI core:relates ?editorURI . \n"
-        + "?editorURI a foaf:Person . \n"
+        + "?editorURI a foaf:Agent . \n"
         + "OPTIONAL { ?editorURI rdfs:label ?editorName } \n"
         + "OPTIONAL { ?editorshipURI core:rank ?rank } \n"
         + "} ORDER BY ?rank";

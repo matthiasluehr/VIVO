@@ -26,7 +26,7 @@
                 <precise-subquery>?subject ?property ?editorship .
                 ?editorship a core:Editorship .</precise-subquery>
                 ?editorship core:relates ?person .
-                ?person a foaf:Person .
+                ?person a foaf:Agent .
                 ?person rdfs:label ?personName .
             }
             <collated>
@@ -34,9 +34,9 @@
                 <precise-subquery>?subject ?property ?editorship .
                 ?editorship a core:Editorship .</precise-subquery>
                 ?editorship core:relates ?person .
-                ?person a foaf:Person .
+                ?person a foaf:Agent .
                 ?person vitro:mostSpecificType ?subclass .
-                ?subclass rdfs:subClassOf foaf:Person .
+                ?subclass rdfs:subClassOf foaf:Agent .
             }
             </collated>
             <critical-data-required>

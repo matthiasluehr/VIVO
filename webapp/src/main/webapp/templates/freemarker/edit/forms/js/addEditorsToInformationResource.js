@@ -64,7 +64,16 @@ var addEditorForm = {
         this.selectedEditorName = $('#selectedEditorName');
         this.acHelpTextClass = 'acSelectorWithHelpText';
         this.verifyMatch = this.form.find('.verifyMatch');
+        this.personRadio = $('input.person-radio');
+        this.orgRadio = $('input.org-radio');
         this.personSection = $('section#personFields');
+        this.orgSection = $('section#organizationFields');
+        this.orgName = $('input#orgName');
+        this.orgNameWrapper = this.orgName.parent();
+        this.orgUriField = $('input#orgUri');
+        this.selectedOrg = $('div#selectedOrg');
+        this.selectedOrgName = $('span#selectedOrgName');
+        this.orgLink = $('a#orgLink');
         this.personLink = $('a#personLink');
         this.returnLink = $('a#returnLink');
     },
@@ -158,6 +167,8 @@ var addEditorForm = {
 
         this.hideSelectedPerson();
 
+        addEditorForm.setEditorType("person");
+
         this.cancel.unbind('click');
         this.cancel.bind('click', function() {
             addEditorForm.showEditorListOnlyView();
@@ -181,6 +192,12 @@ var addEditorForm = {
         this.personUriField.val('');
     },
 
+    hideSelectedOrg: function() {
+        this.selectedOrg.hide();
+        this.selectedOrgName.html('');
+        this.orgUriField.val('');
+    },
+
     showFieldsForNewPerson: function() {
         this.firstNameWrapper.show();
         this.middleNameWrapper.show();
@@ -200,10 +217,20 @@ var addEditorForm = {
         // an editor.
         this.acCache = {};
         this.setAcFilter();
-        var $acField = this.lastNameField;
-        var urlString = addEditorForm.acUrl + addEditorForm.personUrl + addEditorForm.tokenize;
-        var authType = "person";
+        var $acField;
+        var urlString;
+        var authType;
 
+        if  ( this.personRadio.prop("checked") ) {
+            $acField = this.lastNameField;
+            urlString = addEditorForm.acUrl + addEditorForm.personUrl + addEditorForm.tokenize;
+            authType = "person";
+        }
+        else {
+            $acField = this.orgName;
+            urlString = addEditorForm.acUrl + addEditorForm.orgUrl + addEditorForm.tokenize;
+            authType = "org";
+        }
         $acField.autocomplete({
             minLength: 2,
             source: function(request, response) {
@@ -314,6 +341,17 @@ var addEditorForm = {
             // executes first). So re-hide them here.
             this.hideFieldsForNewPerson();
             this.personLink.attr('href', this.verifyMatch.data('baseHref') + ui.item.uri);
+        }
+        else {
+            // do the same as above but for the organization fields
+            this.orgUriField.val(ui.item.uri);
+            this.selectedOrg.show();
+
+            this.selectedOrgName.html(ui.item.label);
+
+            this.hideFields(this.orgNameWrapper);
+
+            this.orgLink.attr('href', this.verifyMatch.data('baseHref') + ui.item.uri);
         }
 
         // Cancel restores initial form view
@@ -444,6 +482,14 @@ var addEditorForm = {
             return false;
         });
 
+        this.orgRadio.click(function() {
+            addEditorForm.setEditorType("org");
+        });
+
+        this.personRadio.click(function() {
+            addEditorForm.setEditorType("person");
+        });
+
         this.form.submit(function() {
             // NB Important JavaScript scope issue: if we call it this way, this = addEditorForm
             // in prepareSubmit. If we do this.form.submit(this.prepareSubmit); then
@@ -469,6 +515,11 @@ var addEditorForm = {
             return false;
         });
 
+        this.orgLink.click(function() {
+            window.open($(this).attr('href'), 'verifyMatchWindow', 'width=640,height=640,scrollbars=yes,resizable=yes,status=yes,toolbar=no,menubar=no,location=no');
+            return false;
+        });
+
     	this.acSelector.focus(function() {
         	addEditorForm.deleteAcHelpText(this);
     	});
@@ -476,6 +527,15 @@ var addEditorForm = {
     	this.acSelector.blur(function() {
         	addEditorForm.addAcHelpText(this);
     	});
+
+        this.orgName.focus(function() {
+        	addEditorForm.deleteAcHelpText(this);
+    	});
+
+    	this.orgName.blur(function() {
+        	addEditorForm.addAcHelpText(this);
+    	});
+
 
         // When hitting enter in last name field, show first and middle name fields.
         // NB This event fires when selecting an autocomplete suggestion with the enter
@@ -501,7 +561,7 @@ var addEditorForm = {
             name;
 
         // If selecting an existing person, don't submit name fields
-        if (this.personUriField.val() != '' ) {
+        if (this.personUriField.val() != '' || this.orgUriField.val() != '' || this.orgName.val() != '' ) {
             this.firstNameField.attr('disabled', 'disabled');
             this.middleNameField.attr('disabled', 'disabled');
             this.lastNameField.attr('disabled', 'disabled');
@@ -521,6 +581,10 @@ var addEditorForm = {
 
             this.labelField.val(name);
         }
+		// If user selected org via autocomplete, clear the org name field
+		if ( this.orgUriField.val() != '' ) {
+			this.orgName.val("");
+		}
 
     },
 
@@ -663,6 +727,9 @@ var addEditorForm = {
         if ( $(selectedObj).attr('id') == "lastName" ) {
             typeText = addEditorForm.editorTypeText;
         }
+        else {
+            typeText = addEditorForm.organizationTypeText;
+        }
 
         if (!$(selectedObj).val()) {
 			$(selectedObj).val(addEditorForm.helpTextSelect + " " + typeText + " " + addEditorForm.helpTextAdd)
@@ -680,8 +747,53 @@ var addEditorForm = {
     // we need to set the correct class names for fields like the acSelector, acSelection, etc.
     // as well as clear and disable fields, call other functions ...
 	setEditorType: function(authType) {
-        if ( authType == "person" ) {
+        if ( authType == "org" ) {
+	        this.personSection.hide();
+	        this.orgSection.show();
+			this.orgNameWrapper.show();
+	        // person fields
+            this.personRadio.prop('checked', false);  // needed for reset when cancel button is clicked
+	        this.acSelector.removeClass("acSelector");
+	        this.acSelector.removeClass(this.acHelpTextClass);
+	        this.selectedEditor.removeClass("acSelection");
+	        this.selectedEditorName.removeClass("acSelectionInfo");
+	        this.personLink.removeClass("verifyMatch");
+	        this.acSelector.attr('disabled', 'disabled');
+	        this.firstNameField.attr('disabled', 'disabled');
+	        this.middleNameField.attr('disabled', 'disabled');
+	        this.lastNameField.attr('disabled', 'disabled');
+	        this.acSelector.val('');
+	        this.firstNameField.val('');
+	        this.middleNameField.val('');
+	        this.lastNameField.val('');
+	        // org fields
+	        this.orgRadio.prop('checked', true); // needed for reset when cancel button is clicked
+	        this.orgName.addClass("acSelector");
+	        this.selectedOrg.addClass("acSelection");
+	        this.selectedOrgName.addClass("acSelectionInfo");
+	        this.orgLink.addClass("verifyMatch");
+	        this.orgName.attr('disabled', false);
+	        this.orgUriField.attr('disabled', false);
+
+	        addEditorForm.addAcHelpText(this.orgName);
+	        addEditorForm.initAutocomplete();
+	        addEditorForm.hideSelectedPerson();
+	    }
+	    else if ( authType == "person" ) {
+	        this.orgSection.hide();
 	        this.personSection.show();
+	        // org fields
+	        this.orgRadio.prop('checked', false);  // needed for reset when cancel button is clicked
+	        this.orgName.removeClass("acSelector");
+	        this.orgName.removeClass(this.acHelpTextClass);
+	        this.selectedOrg.removeClass("acSelection");
+	        this.selectedOrgName.removeClass("acSelectionInfo");
+	        this.orgLink.removeClass("verifyMatch");
+	        this.orgName.attr('disabled', 'disabled');
+	        this.orgUriField.attr('disabled', 'disabled');
+	        this.orgName.val('');
+	        this.orgUriField.val('');
+            // person fields
             this.acSelector.addClass("acSelector");
             this.personRadio.prop('checked', true);  // needed for reset when cancel button is clicked
 	        this.selectedEditor.addClass("acSelection");
@@ -694,6 +806,8 @@ var addEditorForm = {
 
 	        addEditorForm.addAcHelpText(this.acSelector);
 	        addEditorForm.initAutocomplete();
+	        addEditorForm.hideSelectedOrg();
+
 	    }
     }
 };
